@@ -16,28 +16,160 @@ var count = 0;                                        //Number of Environments
 var release_name, level, maxLevel = 0;              // level : position of current environment in the graph
 var pre = 0, post = 0;
 
+function CreateReleaseStartedNode()
+{
+    $('#environments').empty();
+
+    var startNode = $('<div/>', {
+        id: "start",
+
+    });
+    $('#environments').append(startNode);
+
+
+}
+
+function CalculateLevel(dependency)
+{
+    for (var s in arr_obj) {
+        if (dependency == arr_obj[s].name) {
+            if (level < arr_obj[s].level)
+                level = arr_obj[s].level;
+            break;
+        }
+    }
+
+}
+
+function GetEnvironmentStatus(currentStatus, status, state)
+{
+    switch (currentStatus) {
+        case 0:
+            state += 'Unknown';
+            break;
+        case 1:
+            state += 'Not Started';
+            status = 'notStarted';
+            break;
+        case 2:
+            state += 'In Progress';
+            status = 'running';
+            break;
+        case 4:
+            state += 'Succeeded';
+            status = 'succeeded';
+            break;
+        case 16:
+            state += 'Rejected';
+            status = 'failed';
+            break;
+
+        case 8:
+            state += 'Cancelled';
+            status = 'failed';
+            break;
+        case 32:
+            state += 'Queued';
+            status = 'running';
+            break;
+
+        case 64:
+            state += 'Scheduled';
+            status = 'scheduled';
+            break;
+
+        default:
+            state += 'Unknown';
+    };
+
+}
+
+function DrawGraph()
+{
+    var objCnt = 0, lvl = 1;
+
+    var shiftTop = 30, shiftLeft = 30;
+
+    while (objCnt < count) {
+        for (var k in arr_obj) {
+            var off = 0;
+            if (lvl == arr_obj[k].level) {
+                if (arr_obj[k].preapproval_list.length == 0)
+                    off = 15;
+                else
+                    off = 0;
+                $("#" + arr_obj[k].name).offset({ top: shiftTop, left: shiftLeft + off });
+                objCnt++;
+                shiftTop += 40;
+            }
+
+        }
+
+        shiftLeft += 74;
+        shiftTop = 30;
+        lvl++;
+
+    }
+
+
+}
+
+function ConnectNodes()
+{
+    jsPlumb.ready(function () {
+        var k = 0;
+        var common =
+           {
+               connector: ["Straight"],
+               anchor: ["Left", "Right"],
+               endpoint: "Blank"
+           };
+
+        while (k < count) {
+            var innLoop = 0;
+            if (arr_obj[k].dependencies[innLoop] != "ReleaseStarted") {
+                while (innLoop < arr_obj[k].dependencies.length) {
+                    jsPlumb.connect({
+                        source: arr_obj[k].dependencies[innLoop],
+                        target: arr_obj[k].name,
+                        paintStyle: { strokeStyle: "lightgray", lineWidth: 3 },
+                        endpointStyle: { fillStyle: "lightgray", outlineColor: "gray" }
+
+                    }, common);
+                    innLoop++;
+                }
+
+            }
+            else {
+                jsPlumb.connect({
+                    source: "start",
+                    target: arr_obj[k].name,
+                    paintStyle: { strokeStyle: "lightgray", lineWidth: 3 },
+                    endpointStyle: { fillStyle: "lightgray", outlineColor: "gray" }
+
+                }, common);
+            }
+            k++;
+        }  //End of while
+                
+    }); //End of Jsready
+
+
+}
+
+
 VSS.ready(function () {
     var c = VSS.getConfiguration();
 
     c.onReleaseChanged(function (release) {
 
-
-
         release_name = release.definitionName;
 
-        $('#environments').empty();
-
-        var startNode = $('<div/>', {
-            id: "start",
-
-        });
-        $('#environments').append(startNode);
-
+        CreateReleaseStartedNode();
 
         release.environments.forEach(function (env) {
             var state = 'State: ';                          //Initialization
             var status = 'pending';
-
             var dependencies = new Array();                 //Contains dependencies of current environment
 
             var i = 0;
@@ -45,30 +177,23 @@ VSS.ready(function () {
             level = 0;                                      // Initializing level to 0 
 
             //Calculating Level of current Environment and storing Dependencies
-
-
-            while (k < env.conditions.length) {
+            
+            while (k < env.conditions.length)
+            {
                 dependencies[i] = env.conditions[k].name;
 
-                if (env.conditions[0].name == "ReleaseStarted") {
+                if (env.conditions[0].name == "ReleaseStarted")
+                {
                     level = 1;
                 }
-                else {
-                    for (var s in arr_obj) {
-                        if (dependencies[i] == arr_obj[s].name) {
-                            if (level < arr_obj[s].level)
-                                level = arr_obj[s].level;
-
-                            break;
-                        }
-                    }
+                else
+                {
+                    CalculateLevel(dependencies[i]);
                 }
 
                 i++;
                 k++;
             }
-
-
 
             if (env.conditions[0].name == "ReleaseStarted")
                 level = 1;
@@ -95,7 +220,6 @@ VSS.ready(function () {
                 postapproval_list[app] = env.postApprovalsSnapshot.approvals[app].approver.displayName;
                 app++;
             }
-
 
             switch (env.status) {
                 case 0:
@@ -124,7 +248,7 @@ VSS.ready(function () {
                     break;
                 case 32:
                     state += 'Queued';
-                    status = 'running';
+                    status = 'pending';
                     break;
 
                 case 64:
@@ -135,9 +259,7 @@ VSS.ready(function () {
                 default:
                     state += 'Unknown';
             };
-
-
-
+            
             //Creating Node for preApproval
             var preApprovalNode = $('<div/>', {
                 id: pre,
@@ -163,7 +285,7 @@ VSS.ready(function () {
             var current = $('<div/>', {
                 id: env.name,
                 class: 'container '
-
+                
             });
 
             $('#environments').append(current);
@@ -175,17 +297,15 @@ VSS.ready(function () {
 
             if (env.postApprovalsSnapshot.approvals[0].isAutomated == false)
                 $('#' + env.name).append(postApprovalNode);
-
+            
             pre++;
             post++;
 
-
-
             //Creating the Object of current Environment
             const ob = new releasedEnvironment(env.name, env.id, dependencies, preapproval_list, postapproval_list, level);
-
+            
             arr_obj[count] = ob;
-
+            
             count++;
 
             //Calculating Maximum No. of Levels
@@ -197,52 +317,40 @@ VSS.ready(function () {
 
         //Creating Graph Level Wise
 
-        var objCnt = 0, lvl = 1;
-
-        var shiftTop = 30, shiftLeft = 30;
-
-        while (objCnt < count) {
-            for (var k in arr_obj) {
-                if (lvl == arr_obj[k].level) {
-
-                    $("#" + arr_obj[k].name).offset({ top: shiftTop, left: shiftLeft });
-                    objCnt++;
-                    shiftTop += 30;
-                }
-
-            }
-
-            shiftLeft += 74;
-            shiftTop = 30;
-            lvl++;
-
-        }
+        DrawGraph();
 
         //Hover Function
 
-        $('.container').hover(function () {
+        $('.container').hover(function ()
+        {
 
-            for (var l in arr_obj) {
+            for (var l in arr_obj)
+            {
                 var temp_obj = arr_obj[l];
 
                 var s = "Environment: ";
 
-                if (temp_obj.name == this.id) {
+                if (temp_obj.name == this.id)
+                {
 
-                    s = s + temp_obj.name + "<br>" + "PreApprover: ";
+                        s = s + temp_obj.name + "<br>" + "PreApprover: ";
 
-                    if (temp_obj.preapproval_list.length != 0) {
-                        for (var k in temp_obj.preapproval_list) {
-                            s = s + temp_obj.preapproval_list[k];
+                        if (temp_obj.preapproval_list.length != 0)
+                        {
+                            for (var k in temp_obj.preapproval_list)
+                            {
+                                s = s + temp_obj.preapproval_list[k];
+                            }
                         }
-                    }
 
                     s = s + "<br>" + "PostApprover: ";
 
-                    if (temp_obj.postapproval_list.length != 0) {
-                        for (var a in temp_obj.postapproval_list) {
-                            s = s + temp_obj.postapproval_list[a];
-                        }
+                    if (temp_obj.postapproval_list.length != 0)
+                    {
+                            for (var a in temp_obj.postapproval_list)
+                            {
+                                s = s + temp_obj.postapproval_list[a];
+                            }
                     }
                     s = s + "<br>";
 
@@ -254,55 +362,13 @@ VSS.ready(function () {
 
             }
         },
-        function () {
+        function ()
+        {
             document.getElementById('details').innerHTML = " ";
         });
 
-
-
-        //Connecting nodes using Jsplumb connect function
-
-        jsPlumb.ready(function () {
-            var k = 0;
-            var common =
-               {
-                   connector: ["Straight"],
-                   anchor: ["Left", "Right"],
-                   endpoint: "Blank"
-               };
-
-            while (k < count) {
-                var innLoop = 0;
-                if (arr_obj[k].dependencies[innLoop] != "ReleaseStarted") {
-                    while (innLoop < arr_obj[k].dependencies.length) {
-                        jsPlumb.connect({
-                            source: arr_obj[k].dependencies[innLoop],
-                            target: arr_obj[k].name,
-                            paintStyle: { strokeStyle: "lightgray", lineWidth: 3 },
-                            endpointStyle: { fillStyle: "lightgray", outlineColor: "gray" }
-
-                        }, common);
-                        innLoop++;
-                    }
-
-                }
-                else {
-                    jsPlumb.connect({
-                        source: "start",
-                        target: arr_obj[k].name,
-                        paintStyle: { strokeStyle: "lightgray", lineWidth: 3 },
-                        endpointStyle: { fillStyle: "lightgray", outlineColor: "gray" }
-
-                    }, common);
-                }
-                k++;
-            }  //End of while
-
-
-
-        }); //End of Jsready
-
-
+        
+        ConnectNodes();           //Connecting nodes using Jsplumb connect function
 
     }); //End of onReleaseChanged
 
