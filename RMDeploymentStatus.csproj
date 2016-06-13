@@ -95,6 +95,20 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="images\Changeworkflow.png" />
+    <Content Include="images\Details.png" />
+    <Content Include="images\export-import-transparent.png" />
+    <Content Include="images\export-import.jpg" />
+    <Content Include="images\export-import.png" />
+    <Content Include="images\icon-clone-16.png" />
+    <Content Include="images\icon-export-16.png" />
+    <Content Include="images\icon-export.png" />
+    <Content Include="images\icon-import-16.png" />
+    <Content Include="images\info.png" />
+    <Content Include="images\Readme.png" />
+    <Content Include="scripts\jquery-1.11.2.min.js" />
+    <Content Include="scripts\jquery.contextmenu.css" />
+    <Content Include="scripts\jquery.contextmenu.js" />
     <Content Include="packages.config" />
     <Content Include="ApplicationInsights.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

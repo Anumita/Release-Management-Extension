@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Language="en-US" Id="Deployment-WorkFlow" Version="0.1.8" Publisher="anumitashenoy"/>
+    <DisplayName>RM deployment status - summary</DisplayName>
+    <Description xml:space="preserve">RM summary section extension</Description>
+    <GalleryFlags/>
+    <Properties>
+      <Property Id="Microsoft.VisualStudio.Services.Links.Learn" Value="https://github.com/Microsoft/vso-extension-samples"/>
+    </Properties>
+    <Icon>images/export-import.jpg</Icon>
+  </Metadata>
+  <Dependencies/>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Services"/>
+  </Installation>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.Services.Icons.Default" d:Source="File" Path="images/export-import.jpg" Addressable="true"/>
+    <Asset Type="Microsoft.VisualStudio.Services.Content.Details" d:Source="File" Path="overview.md" Addressable="true"/>
+    <Asset Type="Microsoft.VisualStudio.Services.Screenshots.1" d:Source="File" Path="images/Details.png" Addressable="true"/>
+    <Asset Type="images/Details.png" d:Source="File" Path="images/Details.png" Addressable="true"/>
+    <Asset Type="Microsoft.VisualStudio.Services.Screenshots.2" d:Source="File" Path="images/Changeworkflow.png" Addressable="true"/>
+    <Asset Type="images/Changeworkflow.png" d:Source="File" Path="images/Changeworkflow.png" Addressable="true"/>
+    <Asset Type="Microsoft.VisualStudio.Services.Screenshots.3" d:Source="File" Path="images/info.png" Addressable="true"/>
+    <Asset Type="images/info.png" d:Source="File" Path="images/info.png" Addressable="true"/>
+    <Asset Type="index.html" d:Source="File" Path="index.html" Addressable="true"/>
+    <Asset Type="scripts/ai.0.22.9-build00167.js" d:Source="File" Path="scripts/ai.0.22.9-build00167.js" Addressable="true"/>
+    <Asset Type="scripts/ai.0.22.9-build00167.min.js" d:Source="File" Path="scripts/ai.0.22.9-build00167.min.js" Addressable="true"/>
+    <Asset Type="scripts/jquery-ui.min.js" d:Source="File" Path="scripts/jquery-ui.min.js" Addressable="true"/>
+    <Asset Type="scripts/jquery.jsPlumb-1.4.1-all-min.js" d:Source="File" Path="scripts/jquery.jsPlumb-1.4.1-all-min.js" Addressable="true"/>
+    <Asset Type="scripts/jquery.min.js" d:Source="File" Path="scripts/jquery.min.js" Addressable="true"/>
+    <Asset Type="scripts/main.js" d:Source="File" Path="scripts/main.js" Addressable="true"/>
+    <Asset Type="scripts/VSS.SDK.js" d:Source="File" Path="scripts/VSS.SDK.js" Addressable="true"/>
+    <Asset Type="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js" d:Source="File" Path="bower_components/vss-web-extension-sdk/lib/VSS.SDK.min.js" Addressable="true"/>
+    <Asset Type="bower_components/vss-web-extension-sdk/lib/VSS.SDK.js" d:Source="File" Path="bower_components/vss-web-extension-sdk/lib/VSS.SDK.js" Addressable="true"/>
+    <Asset Type="images/icon-clone-16.png" d:Source="File" Path="images/icon-clone-16.png" Addressable="true"/>
+    <Asset Type="images/icon-export-16.png" d:Source="File" Path="images/icon-export-16.png" Addressable="true"/>
+    <Asset Type="images/icon-import-16.png" d:Source="File" Path="images/icon-import-16.png" Addressable="true"/>
+    <Asset Type="images/Readme.png" d:Source="File" Path="images/Readme.png" Addressable="true"/>
+    <Asset Type="Microsoft.VisualStudio.Services.Manifest" d:Source="File" Path="extension.vsomanifest" Addressable="true"/>
+  </Assets>
+</PackageManifest>

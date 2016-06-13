@@ -1,0 +1,36 @@
+{
+    "manifestVersion": 1,
+    "content": {
+        "details": {
+            "path": "overview.md"
+        }
+    },
+    "contributions": [
+        {
+            "id": "rm-summary-section-sample",
+            "type": "ms.vss-releaseManagement-web.release-summary-section",
+            "targets": [
+                "ms.vss-releaseManagement-web.release-details-summary-tab"
+            ],
+            "properties": {
+                "name": "Deployment Status",
+                "uri": "index.html",
+                "order": "99"
+            }
+        },
+        {
+            "id": "rm-tab-sample",
+            "type": "ms.vss-releaseManagement-web.release-summary-tab",
+            "targets": [
+                "ms.vss-releaseManagement-web.release-details-view"
+            ],
+            "properties": {
+                "name": "Deployment Status",
+                "uri": "index.html",
+                "order": "99"
+            }
+        }
+    ],
+    "scopes": [],
+    "contributionTypes": []
+}
