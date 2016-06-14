@@ -349,18 +349,18 @@ VSS.ready(function () {
                         if (event.target.id[1] == 'r') {
                             $('.preApproval').contextPopup({
                                 items: [
-                                  { label: 'Approve', action: function () { alert('Deployed') } },
+                                  { label: 'Approve', action: function () { alert('Approved') } },
                                   { label: 'Cancel', action: function () { alert('Cancelled') } },
-                                  { label: 'Reassign', action: function () { alert('Re-Deploying') } }
+                                  { label: 'Reassign', action: function () { alert('Reassigned') } }
                                 ]
                             });
                         }
                         else {
                             $('.postApproval').contextPopup({
                                 items: [
-                                  { label: 'Approve', action: function () { alert('Deployed') } },
+                                  { label: 'Approve', action: function () { alert('Approved') } },
                                   { label: 'Cancel', action: function () { alert('Cancelled') } },
-                                  { label: 'Reassign', action: function () { alert('Re-Deploying') } }
+                                  { label: 'Reassign', action: function () { alert('Reassigned') } }
                                 ]
                             });
                         }
