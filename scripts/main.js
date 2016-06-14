@@ -118,6 +118,7 @@ function ConnectNodes() {
 
 }
 
+VSS.require(["ReleaseManagement/Core/Contracts"], function (RM_Contracts) {
 
 VSS.ready(function () {
     var c = VSS.getConfiguration();
@@ -181,39 +182,40 @@ VSS.ready(function () {
                 countOFApprovers++;
             }
 
+         
 
-        
+
                 switch (env.status) {
-                    case 0:
+                    case RM_Contracts.EnvironmentStatus.Undefined:
                         state += 'Unknown';
                         break;
-                    case 1:
+                    case RM_Contracts.EnvironmentStatus.NotStarted:
                         state += 'Not Started';
                         status = 'notStarted';
                         break;
-                    case 2:
+                    case RM_Contracts.EnvironmentStatus.InProgress:
                         state += 'In Progress';
                         status = 'running';
                         break;
-                    case 4:
+                    case RM_Contracts.EnvironmentStatus.Succeeded:
                         state += 'Succeeded';
                         status = 'succeeded';
                         break;
-                    case 16:
+                    case RM_Contracts.EnvironmentStatus.Rejected:
                         state += 'Rejected';
                         status = 'failed';
                         break;
 
-                    case 8:
+                    case RM_Contracts.EnvironmentStatus.Canceled:
                         state += 'Cancelled';
                         status = 'failed';
                         break;
-                    case 32:
+                    case RM_Contracts.EnvironmentStatus.Queued:
                         state += 'Queued';
                         status = 'pending';
                         break;
 
-                    case 64:
+                    case RM_Contracts.EnvironmentStatus.Scheduled:
                         state += 'Scheduled';
                         status = 'scheduled';
                         break;
@@ -221,62 +223,64 @@ VSS.ready(function () {
                     default:
                         state += 'Unknown';
                 };
-        
+
+
+
 
                 var preApprovalNodeId = "pre" + env.id;
                 var postApprovalNodeId = "pos" + env.id;
 
-            //Creating Node for preApproval
-            var preApprovalNode = $('<div/>', {
-                id: preApprovalNodeId,
-                class: 'preApproval ' + status,
+                //Creating Node for preApproval
+                var preApprovalNode = $('<div/>', {
+                    id: preApprovalNodeId,
+                    class: 'preApproval ' + status,
 
-            });
+                });
 
-            //Creating Node for the Current environment in Graph
+                //Creating Node for the Current environment in Graph
 
-            var EnvNode = $('<div/>', {
-                id: env.id,
-                class: 'environment ' + status,
-                text: env.name,
-            });
+                var EnvNode = $('<div/>', {
+                    id: env.id,
+                    class: 'environment ' + status,
+                    text: env.name,
+                });
 
-            //Creating Node for postApproval
-            var postApprovalNode = $('<div/>', {
-                id: postApprovalNodeId,
-                class: 'postApproval ' + status,
+                //Creating Node for postApproval
+                var postApprovalNode = $('<div/>', {
+                    id: postApprovalNodeId,
+                    class: 'postApproval ' + status,
 
-            });
+                });
 
-            var current = $('<div/>', {
-                id: env.name,
-                class: 'container '
+                var current = $('<div/>', {
+                    id: env.name,
+                    class: 'container '
 
-            });
+                });
 
-            $('#environments').append(current);
+                $('#environments').append(current);
 
-            if (env.preApprovalsSnapshot.approvals[0].isAutomated == false)
-                $('#' + env.name).append(preApprovalNode);
+                if (env.preApprovalsSnapshot.approvals[0].isAutomated == false)
+                    $('#' + env.name).append(preApprovalNode);
 
-            $('#' + env.name).append(EnvNode);
+                $('#' + env.name).append(EnvNode);
 
-            if (env.postApprovalsSnapshot.approvals[0].isAutomated == false)
-                $('#' + env.name).append(postApprovalNode);
+                if (env.postApprovalsSnapshot.approvals[0].isAutomated == false)
+                    $('#' + env.name).append(postApprovalNode);
 
+
+
+                //Creating the Object of current Environment
+                const releasedEnvironmentObject = new releasedEnvironment(env.name, env.id, dependencies, preapproval_list, postapproval_list, levelOfEnvironment);
+
+                ReleasedEnvironments[totalNoOfReleasedEnvironments] = releasedEnvironmentObject;
+
+                totalNoOfReleasedEnvironments++;
+
+                //Calculating Maximum No. of Levels
+                if (maxLevelNumber < levelOfEnvironment)
+                    maxLevelNumber = levelOfEnvironment;
            
-
-            //Creating the Object of current Environment
-            const releasedEnvironmentObject = new releasedEnvironment(env.name, env.id, dependencies, preapproval_list, postapproval_list, levelOfEnvironment);
-
-            ReleasedEnvironments[totalNoOfReleasedEnvironments] = releasedEnvironmentObject;
-
-            totalNoOfReleasedEnvironments++;
-
-            //Calculating Maximum No. of Levels
-            if (maxLevelNumber < levelOfEnvironment)
-                maxLevelNumber = levelOfEnvironment;
-
         }); //End of ForEach
 
 
@@ -288,11 +292,12 @@ VSS.ready(function () {
         $(function () {
             $('.container').contextPopup({
                 items: [
-                  { label: 'Some Item', action: function () { alert('clicked 1') } },
-                  { label: 'Another Thing', action: function () { alert('clicked 2') } },
-                  { label: 'Blah Blah', action: function () { alert('clicked 3') } }
+                  { label: 'Deploy', action: function () { alert('Deployed') } },
+                  { label: 'Cancel', action: function () { alert('Cancelled') } },
+                  { label: 'Re-Deploy', action: function () { alert('Re-Deploying') } }
                 ]
             });
+
         });
 
 
@@ -350,10 +355,22 @@ VSS.ready(function () {
                     if ((event.target.id  == "pre" + releasedEnvironment.id) || (event.target.id == "pos" + releasedEnvironment.id)) {
 
                         if (event.target.id[1] == 'r') {
-                            alert('pre');
+                            $('.preApproval').contextPopup({
+                                items: [
+                                  { label: 'Approve', action: function () { alert('Deployed') } },
+                                  { label: 'Cancel', action: function () { alert('Cancelled') } },
+                                  { label: 'Reassign', action: function () { alert('Re-Deploying') } }
+                                ]
+                            });
                         }
                         else {
-                            alert('post');
+                            $('.postApproval').contextPopup({
+                                items: [
+                                  { label: 'Approve', action: function () { alert('Deployed') } },
+                                  { label: 'Cancel', action: function () { alert('Cancelled') } },
+                                  { label: 'Reassign', action: function () { alert('Re-Deploying') } }
+                                ]
+                            });
                         }
                     }
                 }
@@ -369,4 +386,6 @@ VSS.ready(function () {
 
     }); //End of onReleaseChanged
 
-}); //End of VSS.ready
+});//End of VSS.ready
+
+});//End of VSS.require
