@@ -16,6 +16,7 @@ var totalNoOfReleasedEnvironments = 0;
 var release_name, levelOfEnvironment, maxLevelNumber = 0;              // level : position of current environment in the graph
 var ReleaseStartedNodeId = "start";
 
+//Create the starting initial Node
 function CreateReleaseStartedNode() {
     $('#environments').empty();
 
@@ -27,6 +28,8 @@ function CreateReleaseStartedNode() {
 
 }
 
+
+//Calculate the level of each Environment
 function CalculateLevel(dependency) {
     for (var environment in ReleasedEnvironments) {
         if (dependency == ReleasedEnvironments[environment].name) {
@@ -38,11 +41,12 @@ function CalculateLevel(dependency) {
 
 }
 
-
+//Draw the Graph based on the levels
 function DrawGraph() {
     var releasedEnvironmentCount = 0, levelOfEnvironment = 1;
 
-    var shiftTop = 30, shiftLeft = 30;
+    var shiftTop = 30, shiftLeft = 30;                          //shiftTop is the offset used to place the environments on the same level one below the other;
+                                                                //shiftLeft is the offset used to shift to the next level; 
 
     while (releasedEnvironmentCount < totalNoOfReleasedEnvironments) {
         for (var environment in ReleasedEnvironments) {
@@ -62,7 +66,7 @@ function DrawGraph() {
 
         }
 
-        shiftLeft += 74;
+        shiftLeft += 74;                                        //Shift to the next level
         shiftTop = 30;
         levelOfEnvironment++;
 
@@ -71,6 +75,7 @@ function DrawGraph() {
 
 }
 
+//Draws the connections between the Environments using jsPlumb
 function ConnectNodes() {
     jsPlumb.ready(function () {
         var connectorType = "Straight";
@@ -88,11 +93,12 @@ function ConnectNodes() {
 
         while (releasedEnvironmentCount < totalNoOfReleasedEnvironments) {
             var dependencyCount = 0;
-            if (ReleasedEnvironments[releasedEnvironmentCount].dependencies[dependencyCount] != "ReleaseStarted") {
+
+            if (ReleasedEnvironments[releasedEnvironmentCount].dependencies[dependencyCount] != "ReleaseStarted") {  //Check if the environment is not on the first level
                 while (dependencyCount < ReleasedEnvironments[releasedEnvironmentCount].dependencies.length) {
                     jsPlumb.connect({
-                        source: ReleasedEnvironments[releasedEnvironmentCount].dependencies[dependencyCount],
-                        target: ReleasedEnvironments[releasedEnvironmentCount].name,
+                        source: ReleasedEnvironments[releasedEnvironmentCount].dependencies[dependencyCount],      // Creates a connection between the current environment
+                        target: ReleasedEnvironments[releasedEnvironmentCount].name,                               // and the environments that it depends upon
                         paintStyle: { strokeStyle: connectorColor, lineWidth: 3 },
                         endpointStyle: { fillStyle: connectorColor, outlineColor: endpointOutlineColor }
 
@@ -101,7 +107,7 @@ function ConnectNodes() {
                 }
 
             }
-            else {
+            else {                                                                                                  //Connnect the ReleaseStarted node to the environments on the first level
                 jsPlumb.connect({
                     source: "start",
                     target: ReleasedEnvironments[releasedEnvironmentCount].name,
@@ -123,11 +129,9 @@ VSS.require(["ReleaseManagement/Core/Contracts"], function (RM_Contracts) {
 VSS.ready(function () {
     var c = VSS.getConfiguration();
 
-
-
     c.onReleaseChanged(function (release) {
 
-        release_name = release.definitionName;
+        release_name = release.definitionName; 
 
         CreateReleaseStartedNode();
 
@@ -181,10 +185,8 @@ VSS.ready(function () {
                 postapproval_list[countOFApprovers] = env.postApprovalsSnapshot.approvals[countOFApprovers].approver.displayName;
                 countOFApprovers++;
             }
-
          
-
-
+            //Current Status of the Environment
                 switch (env.status) {
                     case RM_Contracts.EnvironmentStatus.Undefined:
                         state += 'Unknown';
@@ -224,9 +226,6 @@ VSS.ready(function () {
                         state += 'Unknown';
                 };
 
-
-
-
                 var preApprovalNodeId = "pre" + env.id;
                 var postApprovalNodeId = "pos" + env.id;
 
@@ -238,7 +237,6 @@ VSS.ready(function () {
                 });
 
                 //Creating Node for the Current environment in Graph
-
                 var EnvNode = $('<div/>', {
                     id: env.id,
                     class: 'environment ' + status,
@@ -252,6 +250,7 @@ VSS.ready(function () {
 
                 });
 
+                //Creating a container that stores all the above three nodes
                 var current = $('<div/>', {
                     id: env.name,
                     class: 'container '
@@ -268,8 +267,6 @@ VSS.ready(function () {
                 if (env.postApprovalsSnapshot.approvals[0].isAutomated == false)
                     $('#' + env.name).append(postApprovalNode);
 
-
-
                 //Creating the Object of current Environment
                 const releasedEnvironmentObject = new releasedEnvironment(env.name, env.id, dependencies, preapproval_list, postapproval_list, levelOfEnvironment);
 
@@ -285,10 +282,9 @@ VSS.ready(function () {
 
 
         //Creating Graph Level Wise
-
         DrawGraph();
 
-
+        //Context menu popup on right-clicking on the container 
         $(function () {
             $('.container').contextPopup({
                 items: [
@@ -302,53 +298,49 @@ VSS.ready(function () {
 
 
         //Hover Function
+        $('.environment').hover(function ()
+         {
+            for (var releasedEnvironmentIndex in ReleasedEnvironments)
+            {
+                    var releasedEnvironment = ReleasedEnvironments[releasedEnvironmentIndex];
 
-        $('.environment').hover(function () {
-
-            for (var releasedEnvironmentIndex in ReleasedEnvironments) {
-                var releasedEnvironment = ReleasedEnvironments[releasedEnvironmentIndex];
-
-                var EnvironmentInformation = "Environment: ";
-
-                if (releasedEnvironment.id == this.id) {
-
-                    EnvironmentInformation = EnvironmentInformation + releasedEnvironment.name + "<br>" + "PreApprover: ";
-
-                    if (releasedEnvironment.preapproval_list.length != 0) {
-                        for (var approver in releasedEnvironment.preapproval_list) {
+                    var EnvironmentInformation = "Environment: ";
+                        
+                    if (releasedEnvironment.id == this.id)
+                    {
+                        EnvironmentInformation = EnvironmentInformation + releasedEnvironment.name + "<br>" + "PreApprover: ";
+                        if (releasedEnvironment.preapproval_list.length != 0)
+                        {
+                            for (var approver in releasedEnvironment.preapproval_list)
+                            {
                             EnvironmentInformation = EnvironmentInformation + releasedEnvironment.preapproval_list[approver];
+                            }
                         }
-                    }
 
-                    EnvironmentInformation = EnvironmentInformation + "<br>" + "PostApprover: ";
+                        EnvironmentInformation = EnvironmentInformation + "<br>" + "PostApprover: ";
 
-                    if (releasedEnvironment.postapproval_list.length != 0) {
-                        for (var approver in releasedEnvironment.postapproval_list) {
-                            EnvironmentInformation = EnvironmentInformation + releasedEnvironment.postapproval_list[approver];
+                        if (releasedEnvironment.postapproval_list.length != 0)
+                        {
+                            for (var approver in releasedEnvironment.postapproval_list)
+                            {
+                                EnvironmentInformation = EnvironmentInformation + releasedEnvironment.postapproval_list[approver];
+                            }
                         }
+                        EnvironmentInformation = EnvironmentInformation + "<br>";
+
+                        EnvironmentInformation = EnvironmentInformation + "Release: " + release_name + "<br>";
+                        document.getElementById('details').innerHTML = EnvironmentInformation;
+                        break;
                     }
-                    EnvironmentInformation = EnvironmentInformation + "<br>";
-
-                    EnvironmentInformation = EnvironmentInformation + "Release: " + release_name + "<br>";
-                    document.getElementById('details').innerHTML = EnvironmentInformation;
-
-                    break;
-                }
-
-            }
-
-        },
-        function () {
-            document.getElementById('details').innerHTML = " ";
-
-        }
-
-        );
+              }
+          },
+          function ()
+            {
+                document.getElementById('details').innerHTML = " ";
+         });
 
         $('.container').click(function (event) {
             if (event.target != this) {
-
-
                 for (var releasedEnvironmentIndex in ReleasedEnvironments) {
                     var releasedEnvironment = ReleasedEnvironments[releasedEnvironmentIndex];
 
